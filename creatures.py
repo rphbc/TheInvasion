@@ -1,4 +1,6 @@
 import math
+import uuid
+
 from constants import *
 from primitives import Triangle, Vector
 import pyglet as pgt
@@ -19,6 +21,7 @@ class CreatureManager:
 
 class Animal:
     def __init__(self, x=0, y=0, random=False):
+        self.id = uuid.uuid4()
         self.body = Triangle(x=x, y=y, random=random)
         self.position = Vector(0, 0)
         self.velocity = Vector(0, 0)

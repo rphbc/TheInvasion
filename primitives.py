@@ -77,6 +77,7 @@ class Point:
             self.y = y
         self.vertex = [self.x, self.y]
         self.color = color
+        self.object = None
         self.vertices = pyglet.graphics.vertex_list(1,
                                                     ('v2i', self.vertex),
                                                     ('c3B', self.color),

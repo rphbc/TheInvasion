@@ -70,11 +70,14 @@ class MyWindow(pyglet.window.Window):
             creature_path = pltpath.Path([creature.body.v1[:2],
                                          creature.body.v2[:2],
                                          creature.body.v3[:2]])
-            food_positions = [food.body.vertex for food in self.food_manager.foods]
+            food_positions = [food.body.vertex for food in
+                              self.food_manager.foods.values()]
             collide = creature_path.contains_points(food_positions)
             if any(collide):
-                food_positions = np.array(self.food_manager.foods)
-                print(food_positions[collide])
+                food_positions = np.array(list(
+                    self.food_manager.foods.values()))
+                eaten_food = food_positions[collide][0]
+                self.food_manager.delete_food(eaten_food.id)
 
     # def on_resize(self, width, height):
     #     pyglet.gl.glViewport(0, 0, width, height)
