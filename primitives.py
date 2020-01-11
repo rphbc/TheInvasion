@@ -3,9 +3,7 @@ import math
 import numpy as np
 from scipy.spatial.transform import Rotation as Rot
 from random import randint
-
-WIDTH = 800
-HEIGHT = 600
+from constants import *
 
 
 class Vector:
@@ -71,19 +69,29 @@ class Vector:
 
 
 class Point:
-    def __init__(self, x, y, color=(255, 255, 255)):
-        self.vertex = [x, y]
+    def __init__(self, x, y, color=(255, 255, 255), random=False):
+        if random:
+            self.x, self.y = randint(100, WIDTH-100), randint(100, HEIGHT-100)
+        else:
+            self.x = x
+            self.y = y
+        self.vertex = [self.x, self.y]
         self.color = color
         self.vertices = pyglet.graphics.vertex_list(1,
                                                     ('v2i', self.vertex),
                                                     ('c3B', self.color),
                                                     )
 
+    @property
+    def vertex_list(self):
+        return 1, pyglet.graphics.GL_POINTS, None, ('v2i', self.vertex), \
+               ('c3B', self.color)
+
 
 class Triangle:
     def __init__(self, x=0, y=0, size=10, color=(255, 0, 0) * 3, random=False):
         if random:
-            self.x, self.y = randint(0, 100), randint(0, 100)
+            self.x, self.y = randint(100, WIDTH-100), randint(100, HEIGHT-100)
         else:
             self.x = x
             self.y = y
@@ -114,6 +122,9 @@ class Triangle:
         self.v3 = [self.x,
                    self.y + self.size,
                    0.0]
+        self.v1 = list(map(int, self.v1))
+        self.v2 = list(map(int, self.v2))
+        self.v3 = list(map(int, self.v3))
         self.vertex = self.v1 + self.v2 + self.v3
         self.vertices = pyglet.graphics.vertex_list(
             3,
@@ -129,7 +140,6 @@ class Triangle:
         self.object.vertices = self.vertex
 
     def rotate(self, angle):
-        print(angle)
         self.rotated = angle
         R = Rot.from_euler('z', self.rotated, degrees=True)
         v1 = -(self.size // 3) / 0.577350269, -self.size // 3, 0
@@ -144,6 +154,9 @@ class Triangle:
             1], 0
         self.v3 = v3[0] + self.centroid[0], v3[1] + self.centroid[
             1], 0
+        self.v1 = list(map(int, self.v1))
+        self.v2 = list(map(int, self.v2))
+        self.v3 = list(map(int, self.v3))
         self.vertex = self.v1 + self.v2 + self.v3
         # print(self.vertex)
         self.vertices = pyglet.graphics.vertex_list(

@@ -2,15 +2,13 @@ from random import randint
 
 import pyglet
 from pyglet.window import key
+from matplotlib import path as pltpath
+import numpy as np
 
+from constants import *
 from creatures import CreatureManager
+from foods import FoodManager
 from primitives import Line, Triangle, Point, Vector
-
-WIDTH = 800
-HEIGHT = 600
-NUM_CREATURES = 1
-
-# batch = pyglet.graphics.Batch()
 
 
 class MyWindow(pyglet.window.Window):
@@ -22,28 +20,27 @@ class MyWindow(pyglet.window.Window):
         self.triangle = Triangle(100, 100)
         self.point = Point(200, 200)
         self.objects = []
-        self.creatures = CreatureManager()
-
-        # self.triangle = Triangle()
-        # self.quad2 = Quad2()
-        self.creatures.add_creature(NUM_CREATURES)
+        self.food_manager = FoodManager()
+        self.food_manager.add_food(FOOD_NUMBER)
+        self.creature_manager = CreatureManager()
+        self.creature_manager.add_creature(NUM_CREATURES)
 
     def on_key_press(self, symbol, modifiers):
-        if symbol == key.D: # right
+        if symbol == key.D:  # right
             vel = Vector(1, 0)
-            for creature in self.creatures.creatures:
+            for creature in self.creature_manager.creatures:
                 creature.move(vel)
-        if symbol == key.S: # down
+        if symbol == key.S:  # down
             vel = Vector(0, -1)
-            for creature in self.creatures.creatures:
+            for creature in self.creature_manager.creatures:
                 creature.move(vel)
-        if symbol == key.A: # left
+        if symbol == key.A:  # left
             vel = Vector(-1, 0)
-            for creature in self.creatures.creatures:
+            for creature in self.creature_manager.creatures:
                 creature.move(vel)
-        if symbol == key.W: # up
+        if symbol == key.W:  # up
             vel = Vector(0, 1)
-            for creature in self.creatures.creatures:
+            for creature in self.creature_manager.creatures:
                 creature.move(vel)
 
     # def add_object(self, n):
@@ -54,7 +51,7 @@ class MyWindow(pyglet.window.Window):
     #                              ('c3B', [0, 0, 255]))
     #         self.objects.append(particle)
     #     print(self.objects)
-        # batch.draw()
+    # batch.draw()
 
     def on_draw(self):
         self.clear()
@@ -65,13 +62,26 @@ class MyWindow(pyglet.window.Window):
         pyglet.graphics.draw(2, pyglet.gl.GL_POINTS,
                              ('v2i', (10, 15, 30, 35))
                              )
-        self.creatures.batch.draw()
+        self.food_manager.batch.draw()
+        self.creature_manager.batch.draw()
+
+    def check_collisions(self):
+        for creature in self.creature_manager.creatures:
+            creature_path = pltpath.Path([creature.body.v1[:2],
+                                         creature.body.v2[:2],
+                                         creature.body.v3[:2]])
+            food_positions = [food.body.vertex for food in self.food_manager.foods]
+            collide = creature_path.contains_points(food_positions)
+            if any(collide):
+                food_positions = np.array(food_positions)
+                print(food_positions[collide])
 
     # def on_resize(self, width, height):
     #     pyglet.gl.glViewport(0, 0, width, height)
 
 
 i = 0
+
 
 def randomize_points():
     global window
@@ -80,13 +90,14 @@ def randomize_points():
         obj.vertices[0] = randint(0, WIDTH)
         obj.vertices[1] = randint(0, HEIGHT)
 
+
 def loop(dt):
     global i
     window.clear()
     i += 1
     window.triangle.rotate(i)
-    randomize_points()
-
+    # randomize_points()
+    window.check_collisions()
 
 if __name__ == "__main__":
     window = MyWindow(WIDTH, HEIGHT, "Meu Teste")

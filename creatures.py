@@ -1,5 +1,5 @@
 import math
-
+from constants import *
 from primitives import Triangle, Vector
 import pyglet as pgt
 
@@ -18,11 +18,12 @@ class CreatureManager:
 
 
 class Animal:
-    def __init__(self,x=0, y=0, random=False):
+    def __init__(self, x=0, y=0, random=False):
         self.body = Triangle(x=x, y=y, random=random)
         self.position = Vector(0, 0)
         self.velocity = Vector(0, 0)
-        self.mass = 0
+        self.aceleration = Vector(0, 0)
+        self.mass = 10
 
     def rotate(self):
         angle = self.position.angle
