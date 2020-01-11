@@ -1,6 +1,7 @@
 from primitives import Triangle, Vector, Point
 from constants import *
 import pyglet as pgt
+import numpy as np
 
 
 class FoodManager:

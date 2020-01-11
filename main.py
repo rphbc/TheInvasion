@@ -73,7 +73,7 @@ class MyWindow(pyglet.window.Window):
             food_positions = [food.body.vertex for food in self.food_manager.foods]
             collide = creature_path.contains_points(food_positions)
             if any(collide):
-                food_positions = np.array(food_positions)
+                food_positions = np.array(self.food_manager.foods)
                 print(food_positions[collide])
 
     # def on_resize(self, width, height):
