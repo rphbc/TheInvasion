@@ -46,6 +46,10 @@ class Vector:
         return math.hypot(self.x, self.y)
 
     @property
+    def abs(self):
+        return math.hypot(self.x, self.y)
+
+    @property
     def length_sqr(self):
         return self.x * self.x + self.y * self.y
 
@@ -103,6 +107,7 @@ class Triangle:
         self.v2 = [0, 0, 0]
         self.v3 = [0, 0, 0]
         self.vertex = self.v1 + self.v2 + self.v3
+        self.vertex2D = self.v1[:2] + self.v2[:2] + self.v3[:2]
         self.color = color
         self.vertices = pyglet.graphics.vertex_list(
             3,
@@ -127,15 +132,16 @@ class Triangle:
         self.v2 = list(map(int, self.v2))
         self.v3 = list(map(int, self.v3))
         self.vertex = self.v1 + self.v2 + self.v3
+        self.vertex2D = self.v1[:2] + self.v2[:2] + self.v3[:2]
         self.vertices = pyglet.graphics.vertex_list(
             3,
             ('v3f', self.vertex),
             ('c3B', self.color)
         )
 
-    def move(self, vel):
-        self.x += vel.x
-        self.y += vel.y
+    def move(self, pos, vel):
+        self.x = pos.x
+        self.y = pos.y
         self.localize()
         self.rotate(vel.angle - 90)
         self.object.vertices = self.vertex
@@ -159,6 +165,7 @@ class Triangle:
         self.v2 = list(map(int, self.v2))
         self.v3 = list(map(int, self.v3))
         self.vertex = self.v1 + self.v2 + self.v3
+        self.vertex2D = self.v1[:2] + self.v2[:2] + self.v3[:2]
         # print(self.vertex)
         self.vertices = pyglet.graphics.vertex_list(
             3,
@@ -208,3 +215,44 @@ class Line:
                                                     ('v2f', self.vertex),
                                                     ('c3B', self.colors),
                                                     )
+
+
+class Circle:
+    def __init__(self, x, y, radius, resolution=20, color=(255, 0, 255)):
+        self.x = x
+        self.y = y
+        self.centroid = Vector(x, y)
+        self.color = color*resolution
+        self.radius = radius
+        self.points = resolution
+        self.vertex = []
+        self.vertices = None
+
+    def calc_vertex(self):
+        r = self.radius
+        points = [Vector(r*math.sin(theta), r*math.cos(theta)) for theta in
+                  np.linspace(0, 2*np.pi, self.points)]
+
+        points = [point + self.centroid for point in points]
+
+        vertex = []
+        for point in points:
+            vertex += point._v
+
+        self.vertex = vertex
+
+    def update(self,x, y):
+        self.x = x
+        self.y = y
+        self.centroid = Vector(x, y)
+        self.calc_vertex()
+
+
+    @property
+    def vertex_list(self):
+        return self.points, pyglet.graphics.GL_LINE_LOOP, \
+               ('v2f', self.vertex), \
+               ('c3B', self.color)
+
+
+

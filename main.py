@@ -8,7 +8,7 @@ import numpy as np
 from constants import *
 from creatures import CreatureManager
 from foods import FoodManager
-from primitives import Line, Triangle, Point, Vector
+from primitives import Line, Triangle, Point, Vector, Circle
 
 
 class MyWindow(pyglet.window.Window):
@@ -21,26 +21,30 @@ class MyWindow(pyglet.window.Window):
         self.point = Point(200, 200)
         self.objects = []
         self.food_manager = FoodManager()
-        self.food_manager.add_food(FOOD_NUMBER)
         self.creature_manager = CreatureManager()
+        self.life_breath()
+
+    def life_breath(self):
+        self.food_manager.add_food(FOOD_NUMBER)
         self.creature_manager.add_creature(NUM_CREATURES)
 
     def on_key_press(self, symbol, modifiers):
+        creatures = self.creature_manager.creatures.values()
         if symbol == key.D:  # right
             vel = Vector(1, 0)
-            for creature in self.creature_manager.creatures:
+            for creature in creatures:
                 creature.move(vel)
         if symbol == key.S:  # down
             vel = Vector(0, -1)
-            for creature in self.creature_manager.creatures:
+            for creature in creatures:
                 creature.move(vel)
         if symbol == key.A:  # left
             vel = Vector(-1, 0)
-            for creature in self.creature_manager.creatures:
+            for creature in creatures:
                 creature.move(vel)
         if symbol == key.W:  # up
             vel = Vector(0, 1)
-            for creature in self.creature_manager.creatures:
+            for creature in creatures:
                 creature.move(vel)
 
     # def add_object(self, n):
@@ -56,20 +60,23 @@ class MyWindow(pyglet.window.Window):
     def on_draw(self):
         self.clear()
         # self.quad2.vertices.draw(pyglet.gl.GL_TRIANGLES)
-        self.line.vertices.draw(pyglet.gl.GL_LINES)
-        self.triangle.vertices.draw(pyglet.gl.GL_TRIANGLES)
-        self.point.vertices.draw(pyglet.gl.GL_POINTS)
-        pyglet.graphics.draw(2, pyglet.gl.GL_POINTS,
-                             ('v2i', (10, 15, 30, 35))
-                             )
+        # self.line.vertices.draw(pyglet.gl.GL_LINES)
+        # self.triangle.vertices.draw(pyglet.gl.GL_TRIANGLES)
+        # self.point.vertices.draw(pyglet.gl.GL_POINTS)
+        # pyglet.graphics.draw(2, pyglet.gl.GL_POINTS,
+        #                      ('v2i', (10, 15, 30, 35))
+        #                      )
         self.food_manager.batch.draw()
-        self.creature_manager.batch.draw()
+        self.creature_manager.update(self.food_manager)
+        if not self.creature_manager.creatures:
+            self.life_breath()
+
 
     def check_collisions(self):
         for creature in self.creature_manager.creatures:
             creature_path = pltpath.Path([creature.body.v1[:2],
-                                         creature.body.v2[:2],
-                                         creature.body.v3[:2]])
+                                          creature.body.v2[:2],
+                                          creature.body.v3[:2]])
             food_positions = [food.body.vertex for food in
                               self.food_manager.foods.values()]
             collide = creature_path.contains_points(food_positions)
@@ -95,12 +102,13 @@ def randomize_points():
 
 
 def loop(dt):
-    global i
+    # global i
     window.clear()
-    i += 1
-    window.triangle.rotate(i)
+    # i += 1
+    # window.triangle.rotate(i)
     # randomize_points()
-    window.check_collisions()
+    # window.check_collisions()
+
 
 if __name__ == "__main__":
     window = MyWindow(WIDTH, HEIGHT, "Meu Teste")
